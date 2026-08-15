@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ja"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>List v25.2</title>
+<title>List v25.3</title>
 <meta name="robots" content="noindex,nofollow,noarchive">
 <style>
 :root{--forest:#1F5130;--moss:#6B8F5E;--cream:#F7F4EC;--ink:#23281E;--red:#B3402A;--light:#EDF2E6;--gray:#6E7566;--blue:#0F62A8;--line:#DDE2D4}
@@ -113,7 +113,7 @@ a.go{display:block;text-align:center;background:var(--blue);color:#fff;font-weig
 <div id="detail"></div>
 <div id="lb">
  <div class="zw" id="zw" onclick="if(event.target===this)lbClose()">
- <img id="lbimg" referrerpolicy="no-referrer" onclick="lbImgClick(event)">
+ <img id="lbimg" referrerpolicy="no-referrer" onclick="lbImgClick(event)" onmousemove="lbImgMove(event)">
  </div>
  <button class="lbx" onclick="lbClose()">&#10005;</button>
  <button class="cbtn prev" id="lbprev" onclick="event.stopPropagation();lbSet(cidx-1)">&#8249;</button>
@@ -171,16 +171,21 @@ function memoSave(n){
  const el=$('memoStat'); el.textContent='保存済み '+new Date().toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'});
 }
 function lbOpen(){if(!cimgs.length)return;$('lb').classList.add('on');$('lb').classList.remove('zoom');lbSet(cidx);document.body.style.overflow='hidden'}
-function lbImgClick(e){
- const lb=$('lb');
- if(lb.classList.contains('zoom')){lbZoom();return}
+function lbInside(e){
  const im=e.target, r=im.getBoundingClientRect();
  const nw=im.naturalWidth||1, nh=im.naturalHeight||1;
  const sc=Math.min(r.width/nw, r.height/nh);
  const dw=nw*sc, dh=nh*sc;
  const x0=r.left+(r.width-dw)/2, y0=r.top+(r.height-dh)/2;
- const inside = e.clientX>=x0 && e.clientX<=x0+dw && e.clientY>=y0 && e.clientY<=y0+dh;
- inside ? lbZoom() : lbClose()}
+ return e.clientX>=x0 && e.clientX<=x0+dw && e.clientY>=y0 && e.clientY<=y0+dh}
+function lbImgMove(e){
+ const im=e.target;
+ if($('lb').classList.contains('zoom')){im.style.cursor='zoom-out';return}
+ im.style.cursor = lbInside(e) ? 'zoom-in' : 'default'}
+function lbImgClick(e){
+ const lb=$('lb');
+ if(lb.classList.contains('zoom')){lbZoom();return}
+ lbInside(e) ? lbZoom() : lbClose()}
 function lbZoom(){const lb=$('lb');lb.classList.toggle('zoom');
  if(lb.classList.contains('zoom')){const z=$('zw');setTimeout(()=>{z.scrollLeft=(z.scrollWidth-z.clientWidth)/2;z.scrollTop=(z.scrollHeight-z.clientHeight)/2},30)}}
 function lbClose(){$('lb').classList.remove('on');$('lb').classList.remove('zoom');document.body.style.overflow=''}
