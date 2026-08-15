@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ja"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>List v25</title>
+<title>List v25.1</title>
 <meta name="robots" content="noindex,nofollow,noarchive">
 <style>
 :root{--forest:#1F5130;--moss:#6B8F5E;--cream:#F7F4EC;--ink:#23281E;--red:#B3402A;--light:#EDF2E6;--gray:#6E7566;--blue:#0F62A8;--line:#DDE2D4}
@@ -226,7 +226,7 @@ function showDetail(src,i){
  <div class="card"><h3>共通スコア（${p.c}／80点）</h3>${bars}</div>
  <div class="card"><h3>判定</h3><div class="txt">${esc(p.comment||'')}</div></div>
  <div class="card"><h3>要確認・次の一手</h3><div class="txt warn">${esc(p.todo||'')}</div></div>
- ${p.checklist?`<div class="card"><h3>攻略チェックリスト <span class="clprog" id="clprog"></span></h3>${p.checklist.map(st=>`<div class="cstage">${esc(st.s)}</div>`+st.items.map(t=>{const dn=doneSet().has(t.id);return `<div class="task ${dn?'done':''}" onclick="tglCl('${t.id}')"><div class="cb">${dn?'&#10003;':''}</div><div class="tt">${esc(t.t)}</div></div>`}).join('')).join('')}</div>`:''}
+ ${p.checklist?`<div class="card"><h3>攻略チェックリスト <span class="clprog" id="clprog"></span></h3>${p.checklist.map(st=>`<div class="cstage">${esc(st.s)}</div>`+st.items.map(t=>{const dn=doneSet().has(t.id);return `<div class="task ${dn?'done':''}" onclick="tglCl('${t.id}',this)"><div class="cb">${dn?'&#10003;':''}</div><div class="tt">${esc(t.t)}</div></div>`}).join('')).join('')}</div>`:''}
  <div class="card memo"><h3>自分の評価メモ</h3>
  <textarea id="memoTa" placeholder="内見の印象・気になった点・家族の反応などを自由に">${esc(memoLoad(p.name))}</textarea>
  <div class="ms" id="memoStat">${memoLoad(p.name)?'保存済み':'この端末に自動保存されます'}</div></div></div>`;
@@ -245,7 +245,9 @@ function renderTasks(){const s=doneSet();
   h+='</div>'});
  h+='<div class="upd">チェックはこの端末に保存されます</div>';
  $('main').innerHTML=h}
-function tglCl(id){const s=doneSet();s.has(id)?s.delete(id):s.add(id);localStorage.setItem('tasks_done',JSON.stringify([...s]));route()}
+function tglCl(id,el){const s=doneSet();const on=!s.has(id);on?s.add(id):s.delete(id);localStorage.setItem('tasks_done',JSON.stringify([...s]));
+ el.classList.toggle('done',on);el.querySelector('.cb').innerHTML=on?'&#10003;':'';
+ const m=location.hash.match(/^#p\/(props|arch)\/(\d+)$/);if(m){clProg(D[m[1]==='arch'?'arch':'props'][+m[2]])}}
 function clProg(p){if(!p.checklist)return;const s=doneSet();const all=p.checklist.flatMap(st=>st.items.map(t=>t.id));const dn=all.filter(id=>s.has(id)).length;const el=$('clprog');if(el)el.textContent='　'+dn+'／'+all.length+' 完了'}
 window.addEventListener('hashchange',route);
 route();
