@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ja"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>List v24</title>
+<title>List v24.1</title>
 <meta name="robots" content="noindex,nofollow,noarchive">
 <style>
 :root{--forest:#1F5130;--moss:#6B8F5E;--cream:#F7F4EC;--ink:#23281E;--red:#B3402A;--light:#EDF2E6;--gray:#6E7566;--blue:#0F62A8;--line:#DDE2D4}
@@ -70,9 +70,13 @@ a.go{display:block;text-align:center;background:var(--blue);color:#fff;font-weig
 .cbtn.prev{left:10px}.cbtn.next{right:10px}
 .cnt{position:absolute;bottom:10px;right:12px;background:rgba(35,40,30,.7);color:#fff;font-size:11px;font-weight:700;border-radius:999px;padding:3px 10px}
 /* lightbox */
-#lb{position:fixed;inset:0;background:rgba(10,12,9,.93);z-index:50;display:none;align-items:center;justify-content:center}
-#lb.on{display:flex}
-#lb img{max-width:96vw;max-height:86vh;object-fit:contain}
+#lb{position:fixed;inset:0;background:rgba(10,12,9,.93);z-index:50;display:none}
+#lb.on{display:block}
+#lb .zw{width:100vw;height:100vh;overflow:auto;-webkit-overflow-scrolling:touch;display:flex;align-items:center;justify-content:center}
+#lb img{width:96vw;height:86vh;object-fit:contain;cursor:zoom-in;flex:none}
+#lb.zoom .zw{display:block}
+#lb.zoom img{width:190vw;height:auto;max-width:none;object-fit:initial;cursor:zoom-out}
+@media (min-width:800px){#lb.zoom img{width:150vw}}
 #lb .lbx{position:absolute;top:calc(env(safe-area-inset-top) + 10px);right:14px;background:none;border:none;color:#fff;font-size:30px;cursor:pointer;padding:8px}
 #lb .cbtn{background:rgba(247,244,236,.18);color:#fff}
 #lb .cnt{bottom:calc(env(safe-area-inset-bottom) + 14px)}
@@ -103,9 +107,11 @@ a.go{display:block;text-align:center;background:var(--blue);color:#fff;font-weig
 <div class="chips" id="chips"></div>
 <main id="main"></main>
 <div id="detail"></div>
-<div id="lb" onclick="if(event.target===this)lbClose()">
+<div id="lb">
+ <div class="zw" id="zw" onclick="if(event.target===this)lbClose()">
+ <img id="lbimg" referrerpolicy="no-referrer" onclick="lbZoom()">
+ </div>
  <button class="lbx" onclick="lbClose()">&#10005;</button>
- <img id="lbimg" referrerpolicy="no-referrer">
  <button class="cbtn prev" id="lbprev" onclick="event.stopPropagation();lbSet(cidx-1)">&#8249;</button>
  <button class="cbtn next" id="lbnext" onclick="event.stopPropagation();lbSet(cidx+1)">&#8250;</button>
  <div class="cnt" id="lbcnt"></div>
@@ -160,9 +166,12 @@ function memoSave(n){
  if(v.trim())localStorage.setItem(memoKey(n),v); else localStorage.removeItem(memoKey(n));
  const el=$('memoStat'); el.textContent='保存済み '+new Date().toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'});
 }
-function lbOpen(){if(!cimgs.length)return;$('lb').classList.add('on');lbSet(cidx);document.body.style.overflow='hidden'}
-function lbClose(){$('lb').classList.remove('on');document.body.style.overflow=''}
+function lbOpen(){if(!cimgs.length)return;$('lb').classList.add('on');$('lb').classList.remove('zoom');lbSet(cidx);document.body.style.overflow='hidden'}
+function lbZoom(){const lb=$('lb');lb.classList.toggle('zoom');
+ if(lb.classList.contains('zoom')){const z=$('zw');setTimeout(()=>{z.scrollLeft=(z.scrollWidth-z.clientWidth)/2;z.scrollTop=(z.scrollHeight-z.clientHeight)/2},30)}}
+function lbClose(){$('lb').classList.remove('on');$('lb').classList.remove('zoom');document.body.style.overflow=''}
 function lbSet(i){
+ $('lb').classList.remove('zoom');
  cidx=Math.max(0,Math.min(cimgs.length-1,i));
  $('lbimg').src=cimgs[cidx];
  $('lbprev').disabled=cidx===0;$('lbnext').disabled=cidx===cimgs.length-1;
